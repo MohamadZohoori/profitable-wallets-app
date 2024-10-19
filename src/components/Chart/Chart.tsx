@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2'; // Assuming you're using Chart.js
 import 'chart.js/auto'; // Import Chart.js automatically
@@ -6,8 +6,8 @@ import valuableWallets from '../valuable_wallets_sample.json'; // Import JSON da
 
 // Define the correct structure for Wallet and HotTokenHolder
 interface HotTokenHolder {
-  'Buy Times': any;
-  'Sell Times': any;
+  'Buy Times': { time: string }[]; // Array of objects containing time as string
+  'Sell Times': { time: string }[]; // Array of objects containing time as string
 }
 
 interface Wallet {
@@ -16,9 +16,20 @@ interface Wallet {
   HotTokenHolders: HotTokenHolder[]; // Array of HotTokenHolders within each Wallet
 }
 
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    fill: boolean;
+  }[];
+}
+
 const Chart: React.FC = () => {
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
-  const [chartData, setChartData] = useState<any>(null);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
 
   useEffect(() => {
     // Retrieve wallet address from local storage
@@ -49,16 +60,19 @@ const Chart: React.FC = () => {
   }, [selectedWallet]);
 
   // Group buy and sell events by month
-  const groupByMonth = (buyTimes: any, sellTimes: any) => {
-    const groupedBuyData: any = {};
-    const groupedSellData: any = {};
+  const groupByMonth = (
+    buyTimes: { time: string }[],
+    sellTimes: { time: string }[]
+  ) => {
+    const groupedBuyData: { [month: string]: number } = {};
+    const groupedSellData: { [month: string]: number } = {};
 
-    buyTimes.forEach((buyTime: any) => {
+    buyTimes.forEach((buyTime) => {
       const month = formatDateToMonth(buyTime.time.split('T')[0]);
       groupedBuyData[month] = (groupedBuyData[month] || 0) + 1;
     });
 
-    sellTimes.forEach((sellTime: any) => {
+    sellTimes.forEach((sellTime) => {
       const month = formatDateToMonth(sellTime.time.split('T')[0]);
       groupedSellData[month] = (groupedSellData[month] || 0) + 1;
     });
@@ -75,7 +89,10 @@ const Chart: React.FC = () => {
   };
 
   // Generate the chart data for rendering
-  const generateChartData = (buyData: { [month: string]: number }, sellData: { [month: string]: number }) => {
+  const generateChartData = (
+    buyData: { [month: string]: number },
+    sellData: { [month: string]: number }
+  ) => {
     const months = Array.from(new Set([...Object.keys(buyData), ...Object.keys(sellData)])).sort();
 
     const buyCounts = months.map((month) => buyData[month] || 0);

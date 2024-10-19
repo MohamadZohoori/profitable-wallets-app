@@ -25,7 +25,6 @@ const Table: React.FC = () => {
 
   const indexOfLastWallet = currentPage * walletsPerPage;
   const indexOfFirstWallet = indexOfLastWallet - walletsPerPage;
-  const currentWallets = wallets.slice(indexOfFirstWallet, indexOfLastWallet);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -54,8 +53,8 @@ const Table: React.FC = () => {
   // Generate page numbers with ellipsis
   const generatePageNumbers = () => {
     const pageNumbers = [];
-    let start = Math.max(currentPage - 2, 1);
-    let end = Math.min(currentPage + 2, totalPages);
+    const start = Math.max(currentPage - 2, 1);
+    const end = Math.min(currentPage + 2, totalPages);
 
     if (start > 1) {
       pageNumbers.push(1);
